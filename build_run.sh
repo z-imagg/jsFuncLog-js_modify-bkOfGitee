@@ -13,5 +13,7 @@ pnpm install -g tsc #全局安装tsc
 pnpm install typescript
 npx tsc #编译
 
-node build/main/insert_import.js #运行
-# node build/main/index.js #运行
+#   对 WebCola/**.ts文件开头 插入 import语句
+node build/main/insert_import.js  
+#   对 WebCola/**.ts 匿名函数开头 插入 函数进入语句文本
+node build/main/NoNameFunc_Insert_funcEnterStmt.js  

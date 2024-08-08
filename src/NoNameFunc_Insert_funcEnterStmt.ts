@@ -1,3 +1,5 @@
+// [描述] 对 WebCola/**.ts 匿名函数开头 插入 函数进入语句文本
+
 // 参考: https://gist.github.com/banyudu/cf5a6c8ff4b6c8acec97a5517c0fa583
 // ts-ast在线解析  https://ts-ast-viewer.com/
 
@@ -26,15 +28,19 @@ for (const srcFile of sourceFiles) {
   if(!funcDeclLs || funcDeclLs.length == 0 ){ continue;}
   
   // 把所有 修改动作 保存起来
-    //遍历显函数声明
+    //遍历匿名函数声明
     for(const funcDecl of funcDeclLs){
       //取函数名
       let funcName:string|undefined=funcDecl.getName()
-      if(!funcName){ funcName=""; }
       const startLnNum:number=funcDecl.getStartLineNumber();
       const endLnNum:number=funcDecl.getEndLineNumber();
       if(endLnNum==startLnNum){ continue;}
+      if(!funcName){ funcName=`匿名函数@行号${startLnNum}`; }
       console.log(`funcName=${funcName},起止行号 ${startLnNum}:${endLnNum}`)
+
+      const 函数进入语句文本:string=`  const _funcName/* :string */='${funcName}'
+      _funcNoArgs_enter_log(_srcFilePath,_funcName )
+`
 
       //忽略无函数体的函数
       if(!funcDecl.getBody()){ continue;}
@@ -54,7 +60,7 @@ for (const srcFile of sourceFiles) {
       actions.unshift(() => {
 
           //在函数第一条语句前添加注释
-          stmt0.replaceWithText(`/*匿名函数${funcName}第一条语句前加注释*/${stmt0.getText()}`)
+          stmt0.replaceWithText(`${函数进入语句文本} \n${stmt0.getText()}`)
       })//end_unshift
 
 }//end_for

@@ -5,7 +5,7 @@
 
 import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression} from "ts-morph";
 
-const ignore_srcF_ls:string[]=["/app2/WebCola/WebCola/index.ts"]
+const focuse_srcF_prefix:string="/app2/WebCola/WebCola/src";
 // 创建一个TypeScript项目对象
 const project:Project = new Project();
 
@@ -19,8 +19,8 @@ console.log(`sourceFiles=${sourceFiles}`)
 for (const srcFile of sourceFiles) {
   const fileBaseName:string=srcFile.getBaseName()
   const filePath=srcFile.getFilePath()
-  //忽略么?
-  if(ignore_srcF_ls.includes(filePath)){ continue; }
+  //关注么?
+  if(!filePath.startsWith(focuse_srcF_prefix)){ continue;}
 
   console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}`)
 

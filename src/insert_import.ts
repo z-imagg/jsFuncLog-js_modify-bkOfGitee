@@ -3,7 +3,7 @@
 // 参考: https://gist.github.com/banyudu/cf5a6c8ff4b6c8acec97a5517c0fa583
 // ts-ast在线解析  https://ts-ast-viewer.com/
 
-import { Project,SourceFile,ClassDeclaration,FunctionDeclaration,ImportDeclaration,VariableDeclaration ,SyntaxKind,KindToNodeMappings,Statement,FunctionExpression,StandardizedFilePath} from "ts-morph";
+import { Project,SourceFile} from "ts-morph";
 
 // 创建一个TypeScript项目对象
 const project:Project = new Project();
@@ -18,7 +18,7 @@ console.log(`sourceFiles=${sourceFiles}`)
 
 for (const srcFile of sourceFiles) {
   const fileBaseName:string=srcFile.getBaseName()
-  const filePath:StandardizedFilePath=srcFile.getFilePath()
+  const filePath=srcFile.getFilePath()
   console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}`)
   const startPosition:number=srcFile.getStart()
 

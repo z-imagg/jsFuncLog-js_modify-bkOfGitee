@@ -2,6 +2,9 @@
 
 #[描述] ts_nodejs项目 编译、运行 脚本
 
+#'-e': 任一语句异常将导致此脚本终止; '-u': 使用未声明变量将导致异常;  
+set -e -u  
+
 PrjDir=/app2/js_modify/
 
 [[ ! -d $PrjDir/.node_env_v22.1.0 ]] && bash /app/bash-simplify/nodejs_script/new_PrjNodejsEnv_by_nodeenv.sh $PrjDir 22.1.0

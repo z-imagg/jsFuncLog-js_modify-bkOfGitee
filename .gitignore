@@ -6,3 +6,5 @@ public/build/
 .pnpm_home/
 .idea/
 
+
+build/

@@ -13,11 +13,9 @@ project.addSourceFilesAtPaths("/app2/WebCola/WebCola/**/*.ts");
 const sourceFiles:SourceFile[] = project.getSourceFiles();
 console.log(`sourceFiles=${sourceFiles}`)
 
-const ignore_SrcFileLs:string[] = [/* "powergraphexample.ts","tmdbgraph.ts","vhybridize.ts","gridrouting.ts","routingtests.ts" */]
 for (const srcFile of sourceFiles) {
   const fileBaseName:string=srcFile.getBaseName()
   const filePath:StandardizedFilePath=srcFile.getFilePath()
-  if(ignore_SrcFileLs.includes(fileBaseName) || fileBaseName.includes("test")){ continue; }
   console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}`)
 
   const actions: Array<() => void> = []

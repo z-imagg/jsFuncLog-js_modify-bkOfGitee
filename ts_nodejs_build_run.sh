@@ -13,4 +13,5 @@ pnpm install -g tsc #全局安装tsc
 pnpm install typescript
 npx tsc #编译
 
-node build/main/index.js #运行
+node build/main/insert_import.js #运行
+# node build/main/index.js #运行

@@ -15,14 +15,9 @@
     "node": ">=10"
   },
   "dependencies": {
-    "ast-types": "^0.14.2",
-    "escodegen": "^2.1.0",
-    "esprima": "^4.0.1"
+    "ts-morph": "^23.0.0"
   },
   "devDependencies": {
-    "@types/escodegen": "0.0.6",
-    "@types/esprima": "4.0.3",
-    "@types/estree": "^1.0.5",
     "@types/node": "^22.1.0",
     "typescript": "^5.5.4"
   },

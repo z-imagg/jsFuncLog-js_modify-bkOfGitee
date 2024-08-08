@@ -1,33 +1,40 @@
-//esm
-import * as esprima from 'esprima'
-import * as escodegen from 'escodegen'
-import * as ast_types from 'ast-types'
-import * as estree from 'estree'
+// 参考: https://juejin.cn/post/7213277254183845945
+// ts-ast在线解析  https://ts-ast-viewer.com/
 
-//commonjs
-// const esprima = require('esprima');
-// const escodegen = require('escodegen');
-// const b = require('ast-types').builders;
-const b = ast_types.builders;
+import { Project,SourceFile,ClassDeclaration,FunctionDeclaration,ImportDeclaration,VariableDeclaration } from "ts-morph";
 
-const program = `export default [
-  require('@/pages/page1/model').default,
-]`;
-const tree:esprima.Program = esprima.parseModule(program,{loc:true});
+// 创建一个TypeScript项目对象
+const project:Project = new Project();
 
-const body:estree.ExportDefaultDeclaration=tree.body[0]  as estree.ExportDefaultDeclaration
+// 从文件系统加载tsconfig.json文件，并将其中的所有源文件添加到项目中
+// project.addSourceFilesAtPaths("/app2/WebCola/tsconfig.json");
+project.addSourceFilesAtPaths("/app2/WebCola/WebCola/**/*.ts");
 
-const elements:any[] =  (body.declaration as estree.ArrayExpression).elements
 
-const newNode:ast_types.namedTypes.MemberExpression = b.memberExpression(
-  b.callExpression(
-    b.identifier('require'), [
-      b.literal('@/pages/page2/model'),
-    ],
-  ),
-  b.identifier('default'),
-)
-elements.push(newNode);
+// 获取项目中的所有源文件
+const sourceFiles:SourceFile[] = project.getSourceFiles();
+console.log(`sourceFiles=${sourceFiles}`)
 
-const newCode:string = escodegen.generate(tree);
-console.log(newCode);
+// 获取所有类名
+const classNames:string[] = sourceFiles.flatMap((sourceFile:SourceFile) =>
+  sourceFile.getClasses().map((classDecl:ClassDeclaration) => classDecl.getName())
+);
+console.log(`classNames=${classNames}`)
+
+// 获取所有函数名
+const functionNames = sourceFiles.flatMap((sourceFile:SourceFile) =>
+  sourceFile.getFunctions().map((funcDecl:FunctionDeclaration) => funcDecl.getName())
+);
+console.log(`functionNames=${functionNames}`);
+
+// 获取所有import语句
+const importLs:ImportDeclaration[] = sourceFiles.flatMap((sourceFile:SourceFile) => sourceFile.getImportDeclarations());
+importLs.forEach((importDecl:ImportDeclaration,k:number) => {
+  console.log(`${k},importDecl,`,importDecl.getModuleSpecifierValue());
+});
+
+// 获取所有变量声明
+const variables:VariableDeclaration[] = sourceFiles.flatMap((sourceFile:SourceFile) => sourceFile.getVariableDeclarations());
+variables.forEach((variable:VariableDeclaration,k:number) => {
+  console.log(`${k},variable,`,variable.getName());
+});

@@ -15,12 +15,16 @@ project.addSourceFilesAtPaths("/app2/WebCola/WebCola/**/*.ts");
 const sourceFiles:SourceFile[] = project.getSourceFiles();
 console.log(`sourceFiles=${sourceFiles}`)
 
-const importText:string="import {_func_enter_log,_funcNoArgs_enter_log,_func_return_log,_funcNoArgs_return_log,_funcNoArgs_noReturn_log,_func_noReturn_log} from 'js_func_log'"
+
 for (const srcFile of sourceFiles) {
   const fileBaseName:string=srcFile.getBaseName()
   const filePath:StandardizedFilePath=srcFile.getFilePath()
   console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}`)
   const startPosition:number=srcFile.getStart()
+
+  const importText:string=`import {_func_enter_log,_funcNoArgs_enter_log,_func_return_log,_funcNoArgs_return_log,_funcNoArgs_noReturn_log,_func_noReturn_log} from 'js_func_log'
+const _srcFilePath/* :string */='${filePath}';
+`
 
   const actions: Array<() => void> = []
 

@@ -21,10 +21,8 @@ for (const srcFile of sourceFiles) {
   //若空则跳过
   if(!funcDeclLs || funcDeclLs.length == 0 ){ continue;}
   
-  // 把所有 修改动作 保存起来
-  actions.unshift(() => {
-    //遍历显函数声明
-    for(const funcDecl of funcDeclLs){
+  //遍历显函数声明
+  for(const funcDecl of funcDeclLs){
       //取函数名
       let funcName:string|undefined=funcDecl.getName()
       if(!funcName){ funcName=""; }
@@ -42,10 +40,15 @@ for (const srcFile of sourceFiles) {
       //忽略第一条语句为空的函数
       if(!stmt0){ continue;}
 
+      // 把所有 修改动作 保存起来
+      // [遵守规则] 一个动作必须只能含有一个修改源码文本行为; 
+      //     若一个动作含有多个修改源码文本行为, 则修改1 可能印象修改2 的执行背景,从而导致修改2报错  (InvalidOperationError: Attempted to get information from a node that was removed or forgotten.)
+      actions.unshift(() => {
       //在函数第一条语句前添加注释
       stmt0.replaceWithText(`/*函数${funcName}第一条语句前加注释*/${stmt0.getText()}`)
-    }//end_for
-  })//end_unshift
+      })//end_unshift
+
+  }//end_for
   
   // 最后 一并执行 修改动作
   actions.forEach((act) => {

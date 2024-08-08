@@ -27,7 +27,7 @@ for (const srcFile of sourceFiles) {
   console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}`)
   const startPosition:number=srcFile.getStart()
 
-  const importText:string=`import {_func_enter_log,_funcNoArgs_enter_log,_func_return_log,_funcNoArgs_return_log,_funcNoArgs_noReturn_log,_func_noReturn_log} from './_func_log.iife.js'; const _srcFilePath/* :string */='${filePath}';`
+  const importText:string=`import {_func_enter_log,_funcNoArgs_enter_log,_func_return_log,_funcNoArgs_return_log,_funcNoArgs_noReturn_log,_func_noReturn_log} from './_func_log.umd.js'; const _srcFilePath/* :string */='${filePath}';`
 
   const actions: Array<() => void> = []
 

@@ -23,5 +23,6 @@ node build/main/NoNameFunc_Insert_funcEnterStmt.js
 
 # F=/app2/js_func_log/build/cjs/_func_log.cjs.js
 # F=/app2/js_func_log/build/esm/_func_log.esm.js
-F=/app2/js_func_log/build/iife/_func_log.iife.js
+# F=/app2/js_func_log/build/iife/_func_log.iife.js
+F=/app2/js_func_log/build/umd/_func_log.umd.js
 cp -v $F /app2/WebCola/WebCola/src/

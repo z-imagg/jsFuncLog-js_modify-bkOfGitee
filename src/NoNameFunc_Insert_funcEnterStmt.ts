@@ -38,9 +38,7 @@ for (const srcFile of sourceFiles) {
       if(!funcName){ funcName=`匿名函数@行号${startLnNum}`; }
       console.log(`funcName=${funcName},起止行号 ${startLnNum}:${endLnNum}`)
 
-      const 函数进入语句文本:string=`  const _funcName/* :string */='${funcName}'
-      _funcNoArgs_enter_log(_srcFilePath,_funcName )
-`
+      const 函数进入语句文本:string=`  const _funcName/* :string */='${funcName}' ; _funcNoArgs_enter_log(_srcFilePath,_funcName ) ; `
 
       //忽略无函数体的函数
       if(!funcDecl.getBody()){ continue;}
@@ -60,7 +58,7 @@ for (const srcFile of sourceFiles) {
       actions.unshift(() => {
 
           //在函数第一条语句前添加注释
-          stmt0.replaceWithText(`${函数进入语句文本} \n${stmt0.getText()}`)
+          stmt0.replaceWithText(`${函数进入语句文本} ; ${stmt0.getText()}`)
       })//end_unshift
 
 }//end_for

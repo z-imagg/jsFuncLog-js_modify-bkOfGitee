@@ -3,7 +3,7 @@
 // 参考: https://gist.github.com/banyudu/cf5a6c8ff4b6c8acec97a5517c0fa583
 // ts-ast在线解析  https://ts-ast-viewer.com/
 
-import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression} from "ts-morph";
+import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression,MethodDeclaration} from "ts-morph";
 import { calcFuncName_of_FuncExpr } from "./utils/GetFuncName";
 import { get_firstStmt_of_FunctionExpression } from "./func_process/FunctionExpression_Process";
 
@@ -24,6 +24,24 @@ function execModifyAction(mat:ModifyMaterial){
   mat.stmt0.replaceWithText(`${函数进入语句文本} ; ${mat.stmt0.getText()}`)
 }
 
+function calcFuncName_of_Func<T_FuncDecl>(funcDecl:T_FuncDecl, funcDeclTypeEnum:SyntaxKind):string|undefined{
+  if(funcDeclTypeEnum==SyntaxKind.FunctionExpression){
+    return calcFuncName_of_FuncExpr(funcDecl as FunctionExpression)
+  }
+  if(funcDeclTypeEnum==SyntaxKind.MethodDeclaration){
+    // return calcFuncName_of_MethodDecl(funcDecl as MethodDeclaration)
+  }
+  return undefined;
+}
+function get_firstStmt_of_Func<T_FuncDecl>(funcDecl:T_FuncDecl, funcDeclTypeEnum:SyntaxKind):Statement|undefined{
+  if(funcDeclTypeEnum==SyntaxKind.FunctionExpression){
+    return get_firstStmt_of_FunctionExpression(funcDecl as FunctionExpression)
+  }
+  if(funcDeclTypeEnum==SyntaxKind.MethodDeclaration){
+    // return get_firstStmt_of_MethodDecl(funcDecl as MethodDeclaration)
+  }
+  return undefined;
+}
 const focuse_srcF_prefix:string="/app2/WebCola/WebCola/src";
 // 创建一个TypeScript项目对象
 const project:Project = new Project();
@@ -55,8 +73,8 @@ for (const srcFile of sourceFiles) {
   //遍历匿名函数声明
   for(const funcDecl of funcDeclLs){
     //取函数名
-    let funcName:string =calcFuncName_of_FuncExpr(funcDecl)
-    const stmt0:Statement|undefined=get_firstStmt_of_FunctionExpression(funcDecl)
+    let funcName:string =calcFuncName_of_Func<FunctionExpression>(funcDecl,SyntaxKind.FunctionExpression)
+    const stmt0:Statement|undefined=get_firstStmt_of_Func<FunctionExpression>(funcDecl,SyntaxKind.FunctionExpression)
     //忽略起止行号相同的函数,忽略无函数体的函数,忽略无语句的函数,忽略第一条语句为空的函数
     console.log(`funcName=${funcName},起止行号 ${funcDecl.getStartLineNumber()}:${funcDecl.getEndLineNumber()},忽略么?${stmt0==undefined}`)
     if(!stmt0){ continue;}

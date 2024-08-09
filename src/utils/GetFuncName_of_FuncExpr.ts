@@ -1,4 +1,4 @@
-import { FunctionExpression, SyntaxKind } from "ts-morph";
+import { FunctionExpression, Identifier, SyntaxKind } from "ts-morph";
 import {getFuncStartLineNumAsFuncName} from './Basic'
 
 export function calcFuncName_of_FuncExpr(funcDecl:FunctionExpression):string{
@@ -28,7 +28,8 @@ function calcFuncName_of_FuncExpr_under_VarDecl(funcDecl:FunctionExpression):str
     const parent=funcDecl.getParent()
     const varDecl=parent.asKind(SyntaxKind.VariableDeclaration)
     if(varDecl){
-      const varName=varDecl.getChildAtIndex(0).asKind(SyntaxKind.Identifier)
+      // const varName=varDecl.getChildAtIndex(0).asKind(SyntaxKind.Identifier)//第一个 子节点 可能是注释、 可能是标识符, 因此 这个写法不严谨(有错误) 
+      const varName:Identifier=varDecl.getFirstChildByKind(SyntaxKind.Identifier)
       if(varName){
         console.log(`匿名函数取名,发现形式匿名函数赋值给变量,行号${funcDecl.getStartLineNumber()}:${funcDecl.getEndLineNumber()}`)
         return varName.getText()
@@ -51,7 +52,9 @@ function calcFuncName_of_FuncExpr_under_PropertyDecl(funcDecl:FunctionExpression
     const parent=funcDecl.getParent()
     const propertyDecl=parent.asKind(SyntaxKind.PropertyDeclaration)
     if(propertyDecl){
-      const varName=propertyDecl.getChildAtIndex(0).asKind(SyntaxKind.Identifier)
+      // const varName=propertyDecl.getChildAtIndex(0).asKind(SyntaxKind.Identifier)//第一个 子节点 可能是注释、 可能是标识符, 因此 这个写法不严谨(有错误) 
+      //获取第一个是标识符的子节点 作为 函数名
+      const varName:Identifier=propertyDecl.getFirstChildByKind(SyntaxKind.Identifier)
       if(varName){
         console.log(`匿名函数取名,发现形式匿名函数作为字段值,行号${funcDecl.getStartLineNumber()}:${funcDecl.getEndLineNumber()}`)
         return varName.getText()

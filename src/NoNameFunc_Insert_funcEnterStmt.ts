@@ -4,7 +4,7 @@
 // ts-ast在线解析  https://ts-ast-viewer.com/
 
 import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression} from "ts-morph";
-import { getFuncNameOfFuncExpr } from "./utils/GetFuncName";
+import { calcFuncName_of_FuncExpr } from "./utils/GetFuncName";
 
 const focuse_srcF_prefix:string="/app2/WebCola/WebCola/src";
 // 创建一个TypeScript项目对象
@@ -36,7 +36,7 @@ for (const srcFile of sourceFiles) {
     //遍历匿名函数声明
     for(const funcDecl of funcDeclLs){
       //取函数名
-      let funcName:string =getFuncNameOfFuncExpr(funcDecl)
+      let funcName:string =calcFuncName_of_FuncExpr(funcDecl)
       const startLnNum:number=funcDecl.getStartLineNumber();
       const endLnNum:number=funcDecl.getEndLineNumber();
       if(endLnNum==startLnNum){ continue;}

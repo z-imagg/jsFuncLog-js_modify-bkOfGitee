@@ -5,6 +5,24 @@
 
 import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression} from "ts-morph";
 import { calcFuncName_of_FuncExpr } from "./utils/GetFuncName";
+import { get_firstStmt_of_FunctionExpression } from "./func_process/FunctionExpression_Process";
+
+//执行修改动作 所需要的材料
+interface ModifyMaterial{
+  //函数的第一条语句
+  stmt0:Statement|undefined
+  //函数名
+  funcName:string
+}
+//执行修改动作
+function execModifyAction(mat:ModifyMaterial){
+  //跳过无第一条语句的函数
+  if(!mat.stmt0){ return;}
+  //构造日志语句
+  const 函数进入语句文本:string=`  const _funcName/* :string */='${mat.funcName}' ; _funcNoArgs_enter_log(_srcFilePath,_funcName ) ; `
+  //在函数第一条语句前添加 日志语句
+  mat.stmt0.replaceWithText(`${函数进入语句文本} ; ${mat.stmt0.getText()}`)
+}
 
 const focuse_srcF_prefix:string="/app2/WebCola/WebCola/src";
 // 创建一个TypeScript项目对象
@@ -25,7 +43,8 @@ for (const srcFile of sourceFiles) {
 
   console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}`)
 
-  const actions: Array<() => void> = []
+  const materialLs:Array<ModifyMaterial> = []
+
   // 获取源文件srcFile中匿名函数声明,   具体可观看 https://ts-ast-viewer.com/  解释x.ts 结果中的 FunctionExpression
   const funcDeclLs:FunctionExpression[] = srcFile.getDescendantsOfKind(SyntaxKind.FunctionExpression)
 
@@ -33,46 +52,25 @@ for (const srcFile of sourceFiles) {
   if(!funcDeclLs || funcDeclLs.length == 0 ){ continue;}
   
   // 把所有 修改动作 保存起来
-    //遍历匿名函数声明
-    for(const funcDecl of funcDeclLs){
-      //取函数名
-      let funcName:string =calcFuncName_of_FuncExpr(funcDecl)
-      const startLnNum:number=funcDecl.getStartLineNumber();
-      const endLnNum:number=funcDecl.getEndLineNumber();
-      if(endLnNum==startLnNum){ continue;}
-      console.log(`funcName=${funcName},起止行号 ${startLnNum}:${endLnNum}`)
+  //遍历匿名函数声明
+  for(const funcDecl of funcDeclLs){
+    //取函数名
+    let funcName:string =calcFuncName_of_FuncExpr(funcDecl)
+    const stmt0:Statement|undefined=get_firstStmt_of_FunctionExpression(funcDecl)
+    //忽略起止行号相同的函数,忽略无函数体的函数,忽略无语句的函数,忽略第一条语句为空的函数
+    console.log(`funcName=${funcName},起止行号 ${funcDecl.getStartLineNumber()}:${funcDecl.getEndLineNumber()},忽略么?${stmt0==undefined}`)
+    if(!stmt0){ continue;}
 
-      const 函数进入语句文本:string=`  const _funcName/* :string */='${funcName}' ; _funcNoArgs_enter_log(_srcFilePath,_funcName ) ; `
+    // [遵守规则] 一个动作必须只能含有一个修改源码文本行为; 
+    //     若一个动作含有多个修改源码文本行为, 则修改1 可能印象修改2 的执行背景,从而导致修改2报错  (InvalidOperationError: Attempted to get information from a node that was removed or forgotten.)
+    materialLs.unshift(<ModifyMaterial>{funcName,stmt0})
 
-      //忽略无函数体的函数
-      if(!funcDecl.getBody()){ continue;}
-
-      //获取函数的语句列表
-      const stmts:Statement[]=funcDecl.getStatements()
-      //忽略无语句的函数
-      if(!stmts || stmts.length==0){ continue;}
-
-      //取函数第一条语句
-      const stmt0:Statement=stmts[0]
-      //忽略第一条语句为空的函数
-      if(!stmt0){ continue;}
-
-      // [遵守规则] 一个动作必须只能含有一个修改源码文本行为; 
-      //     若一个动作含有多个修改源码文本行为, 则修改1 可能印象修改2 的执行背景,从而导致修改2报错  (InvalidOperationError: Attempted to get information from a node that was removed or forgotten.)
-      actions.unshift(() => {
-
-          //在函数第一条语句前添加注释
-          stmt0.replaceWithText(`${函数进入语句文本} ; ${stmt0.getText()}`)
-      })//end_unshift
-
-}//end_for
+  }//end_for 函数声明遍历
   
   // 最后 一并执行 修改动作
-  actions.forEach((act) => {
-    act()
-  })//end_forEach
+  materialLs.forEach((mat)=>execModifyAction(mat))
 
-}//end_for
+}//end_for 源文件遍历
 
 //保存项目
 project.saveSync()

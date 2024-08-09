@@ -3,10 +3,10 @@
 // 参考: https://gist.github.com/banyudu/cf5a6c8ff4b6c8acec97a5517c0fa583
 // ts-ast在线解析  https://ts-ast-viewer.com/
 
-import { Statement,FunctionExpression,MethodDeclaration} from "ts-morph";
+import { Statement,FunctionExpression,MethodDeclaration, FunctionDeclaration} from "ts-morph";
 
 
-export function get_firstStmt_of_Func(funcDecl: FunctionExpression|MethodDeclaration):Statement|undefined{
+export function get_firstStmt_of_Func(funcDecl: FunctionDeclaration|FunctionExpression|MethodDeclaration):Statement|undefined{
   
 
       const startLnNum:number=funcDecl.getStartLineNumber();

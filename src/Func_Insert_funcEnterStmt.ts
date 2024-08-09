@@ -3,9 +3,9 @@
 // 参考: https://gist.github.com/banyudu/cf5a6c8ff4b6c8acec97a5517c0fa583
 // ts-ast在线解析  https://ts-ast-viewer.com/
 
-import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression, KindToNodeMappings, MethodDeclaration} from "ts-morph";
+import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression, KindToNodeMappings, MethodDeclaration, FunctionDeclaration} from "ts-morph";
 import { calcFuncName_of_FuncExpr } from "./utils/GetFuncName_of_FuncExpr";
-import {calcFuncName_of_MethodDecl} from "./utils/CalcFuncName_of_MethodDecl"
+import {calcFuncName_of_MethodOrFuncDecl} from "./utils/CalcFuncName_of_MethodOrFuncDecl"
 import { get_firstStmt_of_Func } from "./func_process/FunctionExpression_Process";
 
 //调用入口函数
@@ -29,17 +29,25 @@ function execModifyAction(mat:ModifyMaterial){
   mat.stmt0.replaceWithText(`${函数进入语句文本} ; ${mat.stmt0.getText()}`)
 }//end_func execModifyAction
 
+//计算 函数名
 function calcFuncName_of_Func<T_FuncDecl>(funcDecl:T_FuncDecl, funcDeclTypeEnum:SyntaxKind):string|undefined{
+  if(funcDeclTypeEnum==SyntaxKind.FunctionDeclaration){
+    return calcFuncName_of_MethodOrFuncDecl(funcDecl as FunctionDeclaration)
+  }
   if(funcDeclTypeEnum==SyntaxKind.FunctionExpression){
     return calcFuncName_of_FuncExpr(funcDecl as FunctionExpression)
   }
   if(funcDeclTypeEnum==SyntaxKind.MethodDeclaration){
-    return calcFuncName_of_MethodDecl(funcDecl as MethodDeclaration)
+    return calcFuncName_of_MethodOrFuncDecl(funcDecl as MethodDeclaration)
   }
   return undefined;
 }//end_func calcFuncName_of_Func
 
+//获取函数的第一条语句
 function get_firstStmt_of_Func_wrap<T_FuncDecl>(funcDecl:T_FuncDecl, funcDeclTypeEnum:SyntaxKind):Statement|undefined{
+  if(funcDeclTypeEnum==SyntaxKind.FunctionDeclaration){
+    return get_firstStmt_of_Func(funcDecl as FunctionDeclaration)
+  }
   if(funcDeclTypeEnum==SyntaxKind.FunctionExpression){
     return get_firstStmt_of_Func(funcDecl as FunctionExpression)
   }
@@ -70,17 +78,26 @@ for (const srcFile of sourceFiles) {
 
   console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}, SyntaxKind.FunctionExpression=${SyntaxKind.FunctionExpression},SyntaxKind.MethodDeclaration=${SyntaxKind.MethodDeclaration}`)
 
-  const materialLs_FnExpr:Array<ModifyMaterial>|undefined =  srcFile_process<FunctionExpression,SyntaxKind.FunctionExpression>(srcFile,SyntaxKind.FunctionExpression)
-  //跳过空返回
-  if(!materialLs_FnExpr || materialLs_FnExpr.length == 0 ){ continue;}
-  // 最后 一并执行 修改动作
-  materialLs_FnExpr.forEach((mat)=>execModifyAction(mat))
+  //0. 显函数
+  const materialLs_FnDecl:Array<ModifyMaterial>|undefined =  srcFile_process<FunctionExpression,SyntaxKind.FunctionDeclaration>(srcFile,SyntaxKind.FunctionDeclaration)
+  if(materialLs_FnDecl ){ 
+    // 最后 一并执行 修改动作
+    materialLs_FnDecl.forEach((mat)=>execModifyAction(mat))
+  }
 
+  //1. 匿名函数
+  const materialLs_FnExpr:Array<ModifyMaterial>|undefined =  srcFile_process<FunctionExpression,SyntaxKind.FunctionExpression>(srcFile,SyntaxKind.FunctionExpression)
+  if(materialLs_FnExpr ){ 
+    // 最后 一并执行 修改动作
+    materialLs_FnExpr.forEach((mat)=>execModifyAction(mat))
+  }
+
+  //2. 方法
   const materialLs_MtdDecl:Array<ModifyMaterial>|undefined =  srcFile_process<MethodDeclaration,SyntaxKind.MethodDeclaration>(srcFile,SyntaxKind.MethodDeclaration)
-  //跳过空返回
-  if(!materialLs_MtdDecl || materialLs_MtdDecl.length == 0 ){ continue;}
-  // 最后 一并执行 修改动作
-  materialLs_MtdDecl.forEach((mat)=>execModifyAction(mat))
+  if(materialLs_MtdDecl ){ 
+    // 最后 一并执行 修改动作
+    materialLs_MtdDecl.forEach((mat)=>execModifyAction(mat))
+  }
 
 }//end_for 源文件遍历
 

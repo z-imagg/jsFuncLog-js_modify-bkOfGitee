@@ -19,7 +19,7 @@ npx tsc #编译
 #   对 WebCola/**.ts文件开头 插入 import语句
 node build/main/insert_import.js  
 #   对 WebCola/**.ts 匿名函数开头 插入 函数进入语句文本
-node build/main/NoNameFunc_Insert_funcEnterStmt.js  
+node build/main/Func_Insert_funcEnterStmt.js  
 
 # F=/app2/js_func_log/build/cjs/_func_log.cjs.js
 # F=/app2/js_func_log/build/esm/_func_log.esm.js

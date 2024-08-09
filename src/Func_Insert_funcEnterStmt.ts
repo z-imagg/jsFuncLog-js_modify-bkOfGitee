@@ -3,9 +3,10 @@
 // 参考: https://gist.github.com/banyudu/cf5a6c8ff4b6c8acec97a5517c0fa583
 // ts-ast在线解析  https://ts-ast-viewer.com/
 
-import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression, KindToNodeMappings} from "ts-morph";
-import { calcFuncName_of_FuncExpr } from "./utils/GetFuncName";
-import { get_firstStmt_of_FunctionExpression } from "./func_process/FunctionExpression_Process";
+import { Project,SourceFile,SyntaxKind,Statement,FunctionExpression, KindToNodeMappings, MethodDeclaration} from "ts-morph";
+import { calcFuncName_of_FuncExpr } from "./utils/GetFuncName_of_FuncExpr";
+import {calcFuncName_of_MethodDecl} from "./utils/CalcFuncName_of_MethodDecl"
+import { get_firstStmt_of_Func } from "./func_process/FunctionExpression_Process";
 
 //调用入口函数
 main_insertFuncEnterStmt()
@@ -33,17 +34,17 @@ function calcFuncName_of_Func<T_FuncDecl>(funcDecl:T_FuncDecl, funcDeclTypeEnum:
     return calcFuncName_of_FuncExpr(funcDecl as FunctionExpression)
   }
   if(funcDeclTypeEnum==SyntaxKind.MethodDeclaration){
-    // return calcFuncName_of_MethodDecl(funcDecl as MethodDeclaration)
+    return calcFuncName_of_MethodDecl(funcDecl as MethodDeclaration)
   }
   return undefined;
 }//end_func calcFuncName_of_Func
 
-function get_firstStmt_of_Func<T_FuncDecl>(funcDecl:T_FuncDecl, funcDeclTypeEnum:SyntaxKind):Statement|undefined{
+function get_firstStmt_of_Func_wrap<T_FuncDecl>(funcDecl:T_FuncDecl, funcDeclTypeEnum:SyntaxKind):Statement|undefined{
   if(funcDeclTypeEnum==SyntaxKind.FunctionExpression){
-    return get_firstStmt_of_FunctionExpression(funcDecl as FunctionExpression)
+    return get_firstStmt_of_Func(funcDecl as FunctionExpression)
   }
   if(funcDeclTypeEnum==SyntaxKind.MethodDeclaration){
-    // return get_firstStmt_of_MethodDecl(funcDecl as MethodDeclaration)
+    return get_firstStmt_of_Func(funcDecl as MethodDeclaration)
   }
   return undefined;
 }//end_func get_firstStmt_of_Func
@@ -67,14 +68,19 @@ for (const srcFile of sourceFiles) {
   //关注么?
   if(!filePath.startsWith(focuse_srcF_prefix)){ continue;}
 
-  console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}`)
+  console.log(`文件名,fileBaseName=${fileBaseName}, filePath=${filePath}, SyntaxKind.FunctionExpression=${SyntaxKind.FunctionExpression},SyntaxKind.MethodDeclaration=${SyntaxKind.MethodDeclaration}`)
 
-  const materialLs:Array<ModifyMaterial>|undefined =  srcFile_process<FunctionExpression,SyntaxKind.FunctionExpression>(srcFile,SyntaxKind.FunctionExpression)
+  const materialLs_FnExpr:Array<ModifyMaterial>|undefined =  srcFile_process<FunctionExpression,SyntaxKind.FunctionExpression>(srcFile,SyntaxKind.FunctionExpression)
   //跳过空返回
-  if(!materialLs || materialLs.length == 0 ){ continue;}
-
+  if(!materialLs_FnExpr || materialLs_FnExpr.length == 0 ){ continue;}
   // 最后 一并执行 修改动作
-  materialLs.forEach((mat)=>execModifyAction(mat))
+  materialLs_FnExpr.forEach((mat)=>execModifyAction(mat))
+
+  const materialLs_MtdDecl:Array<ModifyMaterial>|undefined =  srcFile_process<MethodDeclaration,SyntaxKind.MethodDeclaration>(srcFile,SyntaxKind.MethodDeclaration)
+  //跳过空返回
+  if(!materialLs_MtdDecl || materialLs_MtdDecl.length == 0 ){ continue;}
+  // 最后 一并执行 修改动作
+  materialLs_MtdDecl.forEach((mat)=>execModifyAction(mat))
 
 }//end_for 源文件遍历
 
@@ -101,9 +107,9 @@ function srcFile_process<T_FMD,SK_FMD extends SyntaxKind>(srcFile:SourceFile,  f
   for(const funcDecl of funcDeclLs){
     //取函数名
     let funcName:string =calcFuncName_of_Func<T_FMD>(funcDecl as T_FMD,funcDeclTypeEnum)
-    const stmt0:Statement|undefined=get_firstStmt_of_Func<T_FMD>(funcDecl as T_FMD,funcDeclTypeEnum)
+    const stmt0:Statement|undefined=get_firstStmt_of_Func_wrap<T_FMD>(funcDecl as T_FMD,funcDeclTypeEnum)
     //忽略起止行号相同的函数,忽略无函数体的函数,忽略无语句的函数,忽略第一条语句为空的函数
-    console.log(`funcName=${funcName},起止行号 ${funcDecl.getStartLineNumber()}:${funcDecl.getEndLineNumber()},忽略么?${stmt0==undefined}`)
+    console.log(`funcName=${funcName},起止行号 ${funcDecl.getStartLineNumber()}:${funcDecl.getEndLineNumber()},忽略么?${stmt0==undefined}, funcDeclTypeEnum=${funcDeclTypeEnum}`)
     if(!stmt0){ continue;}
 
     // [遵守规则] 一个动作必须只能含有一个修改源码文本行为; 

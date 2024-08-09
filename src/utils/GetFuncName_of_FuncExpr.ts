@@ -1,6 +1,7 @@
 import { FunctionExpression, SyntaxKind } from "ts-morph";
+import {getFuncStartLineNumAsFuncName} from './Basic'
 
-export function calcFuncName_of_FuncExpr(funcDecl:FunctionExpression){
+export function calcFuncName_of_FuncExpr(funcDecl:FunctionExpression):string{
   let funcName:string=undefined;
 
   //若形如 'let varXxx=function (){}' , 则返回 'varXxx'
@@ -15,14 +16,8 @@ export function calcFuncName_of_FuncExpr(funcDecl:FunctionExpression){
 
   //否则 返回 '匿名函数@行号yyy'
   return getFuncStartLineNumAsFuncName(funcDecl);
-}
-//以行号 给 匿名函数取名
-function getFuncStartLineNumAsFuncName(funcDecl:FunctionExpression):string{
-  const startLnNum:number=funcDecl.getStartLineNumber();
-  // const endLnNum:number=funcDecl.getEndLineNumber();
-  const funcName=`匿名函数@行号${startLnNum}`;
-  return funcName;
-}
+}//end_func calcFuncName_of_FuncExpr
+
 
 /*
 给匿名函数取名为varXxx, 形如 'let varXxx=function (){}'
@@ -44,7 +39,7 @@ function calcFuncName_of_FuncExpr_under_VarDecl(funcDecl:FunctionExpression):str
   //否则 返回 空
   return undefined;
 
-}
+}//end_func calcFuncName_of_FuncExpr_under_VarDecl
 
 
 /*
@@ -67,4 +62,5 @@ function calcFuncName_of_FuncExpr_under_PropertyDecl(funcDecl:FunctionExpression
   //否则 返回 空
   return undefined;
 
-}
+}//end_func calcFuncName_of_FuncExpr_under_PropertyDecl
+

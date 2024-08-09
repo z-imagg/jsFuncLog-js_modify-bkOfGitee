@@ -91,6 +91,9 @@ project.saveSync()
 
 //FMD==Function or Method Declare
 function srcFile_process<T_FMD,SK_FMD extends SyntaxKind>(srcFile:SourceFile,  funcDeclTypeEnum:SK_FMD):Array<ModifyMaterial>|undefined{
+  //函数多于4行代码, 才会被关注
+  const mini_func_line_count:number = 4;
+
 //SK_FMD 举例 SyntaxKind.FunctionExpression
 //ts这里有点怪味道,  SyntaxKind.FunctionExpression 是 enum SyntaxKind 的一个具体整数值, 但 又可以说 SyntaxKind.FunctionExpression extends SyntaxKind ? 
 
@@ -98,18 +101,24 @@ function srcFile_process<T_FMD,SK_FMD extends SyntaxKind>(srcFile:SourceFile,  f
 
   // 获取源文件srcFile中匿名函数声明,   具体可观看 https://ts-ast-viewer.com/  解释x.ts 结果中的 FunctionExpression
   const funcDeclLs: KindToNodeMappings[SK_FMD][] /* FunctionExpression[] */ = srcFile.getDescendantsOfKind (funcDeclTypeEnum)//funcDeclTypeEnum比如 SyntaxKind.FunctionExpression
+  //funcDeclLs: (FunctionExpression|MethodDeclaration)[]
 
   //若空则跳过
   if(!funcDeclLs || funcDeclLs.length == 0 ){ return undefined;}
   
   // 把所有 修改动作 保存起来
   //遍历匿名函数声明
-  for(const funcDecl of funcDeclLs){
+  for(const funcDecl of funcDeclLs){//funcDecl: FunctionExpression|MethodDeclaration
     //取函数名
     let funcName:string =calcFuncName_of_Func<T_FMD>(funcDecl as T_FMD,funcDeclTypeEnum)
     const stmt0:Statement|undefined=get_firstStmt_of_Func_wrap<T_FMD>(funcDecl as T_FMD,funcDeclTypeEnum)
+    const funcStartLnNum:number=funcDecl.getStartLineNumber()
+    const funcEndLnNum:number=funcDecl.getEndLineNumber()
+    const funcLnCnt:number = funcEndLnNum - funcStartLnNum;
+    //跳过 代码行数太少 的 函数 
+    if(funcLnCnt < mini_func_line_count){ continue;}
     //忽略起止行号相同的函数,忽略无函数体的函数,忽略无语句的函数,忽略第一条语句为空的函数
-    console.log(`funcName=${funcName},起止行号 ${funcDecl.getStartLineNumber()}:${funcDecl.getEndLineNumber()},忽略么?${stmt0==undefined}, funcDeclTypeEnum=${funcDeclTypeEnum}`)
+    console.log(`funcName=${funcName},起止行号 ${funcStartLnNum}:${funcEndLnNum},忽略么?${stmt0==undefined}, funcDeclTypeEnum=${funcDeclTypeEnum}`)
     if(!stmt0){ continue;}
 
     // [遵守规则] 一个动作必须只能含有一个修改源码文本行为; 

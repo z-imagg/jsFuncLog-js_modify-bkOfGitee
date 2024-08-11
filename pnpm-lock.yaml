@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      dexie:
+        specifier: ^4.0.8
+        version: 4.0.8
+      dexie-export-import:
+        specifier: ^4.1.2
+        version: 4.1.2(dexie@4.0.8)
       ts-morph:
         specifier: ^23.0.0
         version: 23.0.0
@@ -51,6 +57,14 @@ packages:
 
   code-block-writer@13.0.2:
     resolution: {integrity: sha512-XfXzAGiStXSmCIwrkdfvc7FS5Dtj8yelCtyOf2p2skCAfvLd6zu0rGzuS9NSCO3bq1JKpFZ7tbKdKlcd5occQA==}
+
+  dexie-export-import@4.1.2:
+    resolution: {integrity: sha512-dWIkkajX+CsEJ19xMnvyqUDlldIl7jW/G49hy3pXZeIgCei9fPeGSjteoh7BeTujexIM3XZ+uAGCEwgCx2HAsQ==}
+    peerDependencies:
+      dexie: ^2.0.4 || ^3.0.0 || ^4.0.1-alpha.5
+
+  dexie@4.0.8:
+    resolution: {integrity: sha512-1G6cJevS17KMDK847V3OHvK2zei899GwpDiqfEXHP1ASvme6eWJmAp9AU4s1son2TeGkWmC0g3y8ezOBPnalgQ==}
 
   fast-glob@3.3.2:
     resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
@@ -164,6 +178,12 @@ snapshots:
       fill-range: 7.1.1
 
   code-block-writer@13.0.2: {}
+
+  dexie-export-import@4.1.2(dexie@4.0.8):
+    dependencies:
+      dexie: 4.0.8
+
+  dexie@4.0.8: {}
 
   fast-glob@3.3.2:
     dependencies:

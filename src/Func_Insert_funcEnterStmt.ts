@@ -8,6 +8,18 @@ import { calcFuncName_of_FuncExpr } from "./utils/GetFuncName_of_FuncExpr";
 import {calcFuncName_of_MethodOrFuncDecl} from "./utils/CalcFuncName_of_MethodOrFuncDecl"
 import { get_firstStmt_of_Func } from "./func_process/FunctionExpression_Process";
 
+import { Dexie } from 'dexie';
+import {importDB, exportDB, importInto, peakImportFile} from "dexie-export-import";
+
+//
+// Declare Database
+//
+const db_FuncLog = new Dexie('FriendDatabase');
+db_FuncLog.version(1).stores({
+  friends: '++id, age'
+});
+db_FuncLog.table("tab_funcLog").count().then(c=>{console.log(c)})
+
 //调用入口函数
 main_insertFuncEnterStmt()
 

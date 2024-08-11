@@ -11,14 +11,20 @@ import { get_firstStmt_of_Func } from "./func_process/FunctionExpression_Process
 import { Dexie } from 'dexie';
 import {importDB, exportDB, importInto, peakImportFile} from "dexie-export-import";
 
-//
-// Declare Database
-//
-const db_FuncLog = new Dexie('FriendDatabase');
-db_FuncLog.version(1).stores({
-  friends: '++id, age'
-});
-db_FuncLog.table("tab_funcLog").count().then(c=>{console.log(c)})
+async function xxx(){
+  const existed=await Dexie.exists('FriendDatabase')
+  if(existed){
+    await Dexie.delete('FriendDatabase')
+  }
+  const db_FuncLog = new Dexie('FriendDatabase');
+  db_FuncLog.version(1).stores({
+    friends: '++id, age'
+  });
+  db_FuncLog.table("tab_funcLog").count().then(c=>{console.log(c)})
+  db_FuncLog.delete()
+  
+}
+
 
 //调用入口函数
 main_insertFuncEnterStmt()

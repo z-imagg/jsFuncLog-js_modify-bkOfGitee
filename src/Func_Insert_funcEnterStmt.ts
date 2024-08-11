@@ -11,6 +11,10 @@ import { get_firstStmt_of_Func } from "./func_process/FunctionExpression_Process
 import { Dexie } from 'dexie';
 import {importDB, exportDB, importInto, peakImportFile} from "dexie-export-import";
 
+Dexie.delete('FriendDatabase').then(()=>{
+//删除数据库后的动作
+})
+
 async function xxx(){
   const existed=await Dexie.exists('FriendDatabase')
   if(existed){
